@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 // POLYFILL
 import 'intersection-observer';
-import './test.css';
 import webpSupport from './webpSupport';
 
 export default class LazyLoading extends Component {
@@ -10,12 +9,25 @@ export default class LazyLoading extends Component {
     waitComplete: true,
     rootMargin: '0px 0px 0px 0px',
     threshold: 0
-  }
+  };
+
+  static defaultKeys = {
+    standalone: ['src', 'webpsrc'],
+    placeholder: ['placeholder', 'webpplaceholder']
+  };
 
   element = React.createRef();
 
   componentDidMount() {
+    // IN CASE THERE THIS.PROPS.CHILDREN IS NULL RETURN
+    if(!this.element.current)
+      return;
+
     this.getElement().then(() => this.createObserver(this.element));
+  }
+  
+  componentDidCatch(error, info) {
+    console.log(error, info);
   }
 
   async getElement() {
@@ -37,7 +49,7 @@ export default class LazyLoading extends Component {
     this.element = this.elements && this.elements.length > 0 ? this.elements : [this.element.current];
     this.element.forEach((el) => {
       this.checkAlt(el);
-      el.dataset.placeholder && this.noResponsiveImages(el, ['placeholder', 'webpplaceholder']);
+      el.dataset.placeholder && this.noResponsiveImages(el, LazyLoading.defaultKeys.placeholder);
     });
   }
 
@@ -65,7 +77,8 @@ export default class LazyLoading extends Component {
       if(entry.isIntersecting) {
         // IF WAIT COMPLETE IS ON WAIT UNTIL IMAGE IS FULLY LOADED BEFORE RENDER
         // ELSE INSTANTLY RENDER THE IMAGE
-        this.props.waitComplete 
+        // WAITCOMPLETE NOT YET SUPPORTED FOR PICTURE - COMING SOON
+        this.props.waitComplete && this.pictureSources.length === 0
           ? this.lazyLoading(entry.target)
           : this.applySource(entry.target);
         
@@ -77,13 +90,13 @@ export default class LazyLoading extends Component {
   async lazyLoading(el) {
     // LOAD MASTER IMAGE
     const image = new Image();
-    image.src = this.src;
+    image.src = this.getSource(el, LazyLoading.defaultKeys.standalone);
     image.onload = () => this.applySource(el);
   }
 
   applySource = (el) => {
     if(el.dataset.src)
-      this.noResponsiveImages(el, ['src', 'webpsrc']);
+      this.noResponsiveImages(el, LazyLoading.defaultKeys.standalone);
     else {
       this.pictureSources.forEach((source) => (
         source.srcset = source.getAttribute('data-srcset'), source.removeAttribute('data-srcset')
@@ -94,7 +107,7 @@ export default class LazyLoading extends Component {
   }
 
   noResponsiveImages(el, key) {
-    const src = !this.props.webp || !this.webp ? el.dataset[key[0]] : el.dataset[key[1]];
+    const src = this.getSource(el, key);
 
     switch(el.tagName) {
       case 'IMG': 
@@ -105,9 +118,19 @@ export default class LazyLoading extends Component {
     }
   }
 
+  getSource(el, key) {
+    return !this.props.webp || !this.webp ? el.dataset[key[0]] : el.dataset[key[1]];
+  }
+
   render() {
-    return (
-      React.cloneElement(React.Children.only(this.props.children), { ref: this.element })
-    );
+    if(this.props.children)
+      return (
+        React.cloneElement(React.Children.only(this.props.children), { ref: this.element })
+      );
+    else {
+      console.error('React Lazily IMG - No child');
+      console.warn('React Lazily IMG - The Lazy component works as a wrapper - you need a child! Documentation on https://github.com/Marvin1003/react-lazily-img');
+      return null
+    }
   }
 }
