@@ -1,0 +1,17 @@
+{
+  "name": "react-images-lazy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [
+    "lazy",
+    "lazyloading",
+    "react"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marvin Klaproth <marvin.klaproth@gmail.com>",
+  "license": "ISC",
+  "dependencies": {}
+}
