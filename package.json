@@ -20,5 +20,7 @@
   },
   "author": "Marvin Klaproth <marvin.klaproth@gmail.com>",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {
+    "react": "^16.4.0"
+  }
 }
