@@ -1,12 +1,19 @@
 {
-  "name": "react-images-lazy",
+  "name": "react-lazily-img",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Marvin1003/react-images-lazy.git"
+  },
   "keywords": [
+    "react",
+    "component",
     "lazy",
-    "lazyloading",
-    "react"
+    "images",
+    "viewport",
+    "intersection"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
