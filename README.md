@@ -20,7 +20,7 @@ MDN:
 >The Intersection Observer API provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.
 
 # Documentation
-Coming Soon
+Coming soon.
 
 # Polyfill
 For the full support [IntersectionObserver polyfill](https://github.com/w3c/IntersectionObserver/tree/master/polyfill) is used.
