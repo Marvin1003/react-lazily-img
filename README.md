@@ -10,6 +10,9 @@
 * **Customize percentage of visibility**
 * **Custom Callback when image is rendered**
 
+# Installation
+`npm install react-lazily-img --save`
+
 # Demo
 Coming soon.
 
