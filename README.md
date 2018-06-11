@@ -37,6 +37,9 @@ import Image1WebP from './images/1.webp';
 import Image2 from './images/2.jpg';
 import Image2WebP from './images/2.webp';
 
+import Image3 from './images/3.jpg';
+import Image3WebP from './images/3.webp';
+
 import Placeholder from './images/3.jpg';
 import PlaceholderWebp from './images/3.webp';
 
@@ -51,46 +54,53 @@ const App (props) => (
   <div className="App">
     <Lazy {...options}>
       <picture>
-        <source media="(max-width:799px)" data-srcset={Image1} />
-        <source media="(min-width:800px)" data-srcset={Image2} />
-        <source type="image/webp" media="(max-width:799px)" data-srcset={Image1WebP} />
-        <source type="image/webp" media="(min-width:800px)" data-srcset={Image2WebP} />
-        // standard source not yet supported. Comming soon
-        <img alt="butterfly" />
+        <source media="(min-width:600px)" data-srcset={Image1} />
+        <source media="(min-width:500px)" data-srcset={Image2} />
+        <source type="image/webp" media="(min-width:600px)" data-srcset={Image1WebP} />
+        <source type="image/webp" media="(min-width:500px)" data-srcset={Image2WebP} />
+        <img data-src={Image3} data-webpsrc={Image3WebP} alt="butterfly" />
       </picture>
     </Lazy>
   </div>
 );
 ```
-You can also use the normal img tag.
+### IMG tag
 ```
 <Lazy {...options}>
-  // data-webpsrc and data-webpplaceholder only needed 
-  // if you enabled webp detection enabled in the options
+  // data-webpsrc and the optional data-webpplaceholder are only needed 
+  // if you enable webp detection in the options
 
-  // placeholder are optional. Image that are shown until the image is in the viewport
+  // placeholder are optional. Image that is shown until the image is in the viewport
 
   <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly />
 </Lazy>
 ```
-Or the div tag with css background image
+### DIV tag - CSS background
 ```
 <Lazy {...options}>
   <div data-src={Image1} data-webpsrc={Image1WebP} />
 </Lazy>
 ```
-You can also wrap multiple picture in one wrapper but then you need to 
-wrap it in another container and give every image the data-type="lazy" attribute
+### Placeholder
+A placeholder is an image that is shown until the image is in the viewport.
+data-webpsrc and the optional data-webpplaceholder are only needed if you enable webp detection in the options.
+```
+<Lazy {...options}>
+  <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly />
+</Lazy>
+```
+### Multiple images in one wrapper
+Every image needs the data-type="lazy" and if you have you use a picture tag the img inside needs the data-type="lazy".
+You also need to wrap it in another container.
 ```
 <Lazy {...options}>
   <div>
     <img data-type="lazy" data-src={Image1} alt="butterfly />
     <div data-type="lazy" data-src={Image1} />
     <picture>
-    <source media="(max-width:799px)" data-srcset={Image1} />
-    <source media="(min-width:800px)" data-srcset={Image2} />
-    // standard source not yet supported. Comming soon
-    <img data-type="lazy" alt="butterfly" />
+      <source media="(min-width:600px)" data-srcset={Image1} />
+      <source media="(min-width:500px)" data-srcset={Image2} />
+      <img data-src={Image3} data-type="lazy" alt="butterfly" />
   </picture>
   </div>
 </Lazy>
