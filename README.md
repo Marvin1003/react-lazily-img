@@ -1,5 +1,5 @@
 # React Lazily IMG
-**React Lazily IMG** is React Wrapper Component to lazy load images. The goal ist to use the convenient known standard HTML tags and just have them lazily loaded.
+**React Lazily IMG** is React Wrapper Component to lazy load images. The goal ist to use the convenient and known standard HTML tags and just have them lazily loaded.
 
 # Features
 * **Webp detection**
