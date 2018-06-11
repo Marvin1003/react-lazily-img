@@ -4,6 +4,8 @@ import 'intersection-observer';
 import webpSupport from './webpSupport';
 
 export default class LazyLoading extends Component {
+  element = React.createRef();
+
   static defaultProps={
     webp: false,
     waitComplete: true,
@@ -12,11 +14,26 @@ export default class LazyLoading extends Component {
   };
 
   static defaultKeys = {
-    standalone: ['src', 'webpsrc'],
-    placeholder: ['placeholder', 'webpplaceholder']
+    default: 'src',
+    sourcetag: 'srcset',
+    defaultAttr: ['src', 'webpsrc'],
+    placeHolderAttr: ['placeholder', 'webpplaceholder'],
   };
 
-  element = React.createRef();
+  static errorHandling = {
+    documentation: 'Documentation: https://github.com/Marvin1003/react-lazily-img',
+    message: {
+      noChild: 'You forgot to pass a child. React Lazily IMG only works as wrapper.',
+      altWarning: "Consider using an ALT-Text. It's important for SEO and accessibility",
+      fallback: "Fallback - the non webp version is used even though this browser supports webp.",
+      noWebpIMG: "You enabled WebP support. The Browser you are currently using also does but you didn't provide a webp image. Pass the webp version in the attribute: 'data-webpsrc'.",
+      forgotPassIMG: "You probably forgot to pass the image."
+    }
+  };
+
+  static errorMessage(message) {
+    console.warn(`${message} ${LazyLoading.errorHandling.documentation}`);
+  }
 
   componentDidMount() {
     // IN CASE THERE THIS.PROPS.CHILDREN IS NULL RETURN
@@ -31,25 +48,33 @@ export default class LazyLoading extends Component {
   }
 
   async getElement() {
-    await this.checkWebp();
+    if(this.props.webp)
+      await this.checkWebp();
+    else 
+      this.webp = this.props.webp;
 
+    // IF MULTIPLE IMAGES NESTED INSIDE ON WRAPPER
     this.elements = this.element.current.querySelectorAll('[data-type="lazy"]');
+
+    // IF PICTURE TAG IS USED
     this.pictureSources = this.element.current.querySelectorAll('[data-srcset]');
 
-
-    if(this.pictureSources.length > 0) {
-      this.pictureWebpSources = [...this.element.current.querySelectorAll('[type="image/webp"]')];
-      if(this.pictureWebpSources.length > 0 && this.webp) {
-        this.pictureSources.forEach((source) => (
-          !this.pictureWebpSources.includes(source) && source.parentNode.removeChild(source))
-        );
-      }
-    }
-
     this.element = this.elements && this.elements.length > 0 ? this.elements : [this.element.current];
-    this.element.forEach((el) => {
+
+    if(this.element[0].tagName !== 'PICTURE') 
+      this.checkAltAndPlaceholder(this.element);
+    else if(this.pictureSources) 
+      this.checkAltAndPlaceholder(this.pictureSources[0].parentNode.childNodes);
+  }
+
+  checkAltAndPlaceholder(elements) {
+    elements.forEach((el) => {
       this.checkAlt(el);
-      el.dataset.placeholder && this.noResponsiveImages(el, LazyLoading.defaultKeys.placeholder);
+      if(el.dataset.placeholder && el.tagName === 'SOURCE') 
+        this.dataToSrc(el, LazyLoading.defaultKeys.sourcetag, LazyLoading.defaultKeys.placeHolderAttr);
+      else 
+        el.dataset.placeholder 
+          && this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.placeHolderAttr);
     });
   }
 
@@ -61,7 +86,7 @@ export default class LazyLoading extends Component {
   checkAlt(el) {
     // WARN IF NO ALT TEXT IS SET
     if(el.tagName === 'IMG' && !el.alt) 
-      console.warn("Consider using an ALT-Text. It's important for SEO and accessibility.");
+      LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
   }
 
   createObserver(targets) {
@@ -90,36 +115,57 @@ export default class LazyLoading extends Component {
   async lazyLoading(el) {
     // LOAD MASTER IMAGE
     const image = new Image();
-    image.src = this.getSource(el, LazyLoading.defaultKeys.standalone);
+    image.src = this.getSource(el, LazyLoading.defaultKeys.defaultAttr);
+    console.log(image.src);
     image.onload = () => this.applySource(el);
   }
 
   applySource = (el) => {
-    if(el.dataset.src)
-      this.noResponsiveImages(el, LazyLoading.defaultKeys.standalone);
-    else {
+    if(!el.dataset.src) {
       this.pictureSources.forEach((source) => (
-        source.srcset = source.getAttribute('data-srcset'), source.removeAttribute('data-srcset')
+        this.dataToSrc(source, LazyLoading.defaultKeys.sourcetag, [LazyLoading.defaultKeys.sourcetag], true)
       ));
+      el = el.querySelector('img')
     }
 
+    this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.defaultAttr);
+    
     this.props.callback && this.props.callback();
   }
 
-  noResponsiveImages(el, key) {
-    const src = this.getSource(el, key);
+  dataToSrc(el, srcKey, dataKeys, pictureTag) {
+    const src = this.getSource(el, dataKeys, pictureTag);
 
     switch(el.tagName) {
-      case 'IMG': 
-        el.src = src;
+      // FALL-THROUGH
+      case 'SOURCE':
+      case 'IMG':
+        el[srcKey] = src;
         break;
       default:
         el.style.backgroundImage = `url(${src})`;
     }
   }
 
-  getSource(el, key) {
-    return !this.props.webp || !this.webp ? el.dataset[key[0]] : el.dataset[key[1]];
+  getSource(el, key, pictureTag = false) {
+    if((!this.props.webp || !this.webp || pictureTag)) {
+      if(!el.dataset[key[0]]) 
+        LazyLoading.errorMessage(LazyLoading.errorHandling.message.forgotPassIMG);
+      else 
+        return el.dataset[key[0]];
+
+      } else {
+      if(!el.dataset[key[1]]) {
+        LazyLoading.errorMessage(LazyLoading.errorHandling.message.noWebpIMG);
+        // FALLBACK IF PROVIDED
+        if(el.dataset[key[0]]) {
+          LazyLoading.errorMessage(LazyLoading.errorHandling.message.fallback);
+          return el.dataset[key[0]];
+        }
+      }
+      else 
+        return el.dataset[key[1]];
+    }
   }
 
   render() {
@@ -128,9 +174,8 @@ export default class LazyLoading extends Component {
         React.cloneElement(React.Children.only(this.props.children), { ref: this.element })
       );
     else {
-      console.error('React Lazily IMG - No child');
-      console.warn('React Lazily IMG - The Lazy component works as a wrapper - you need a child! Documentation on https://github.com/Marvin1003/react-lazily-img');
-      return null
+      LazyLoading.errorMessage(LazyLoading.errorHandling.message.noChild);
+      return null;
     }
   }
 }
