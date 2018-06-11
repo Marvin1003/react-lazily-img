@@ -17,7 +17,7 @@
 Coming soon.
 
 # How does it work ?
-**React Lazily IMG** is powered by the powerful Intersection Observer API. No need of annoying unperformant scroll event listeners and elem.getBoundingClientRect() to check if an element is in the viewport.
+**React Lazily IMG** is powered by the performant Intersection Observer API. No need of annoying unperformant scroll event listeners and elem.getBoundingClientRect() to check if an element is in the viewport.
 
 MDN: 
 >The Intersection Observer API provides a way to asynchronously observe changes in the intersection of a target element with an ancestor element or with a top-level document's viewport.
