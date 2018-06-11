@@ -101,7 +101,7 @@ You also need to wrap it in another container.
       <source media="(min-width:600px)" data-srcset={Image1} />
       <source media="(min-width:500px)" data-srcset={Image2} />
       <img data-src={Image3} data-type="lazy" alt="butterfly" />
-  </picture>
+    </picture>
   </div>
 </Lazy>
 ```
