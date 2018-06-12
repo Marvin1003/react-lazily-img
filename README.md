@@ -1,5 +1,5 @@
 # React Lazily IMG
-**React Lazily IMG** is React Wrapper Component to lazily load images. The goal ist to use the convenient and known standard HTML tags and just have them lazily loaded.
+**React Lazily IMG** is a React Wrapper Component to lazily load images. The goal is to use the convenient and known standard HTML tags and just have them lazily loaded.
 
 # Features
 * **Webp detection**
@@ -40,8 +40,8 @@ import Image2WebP from './images/2.webp';
 import Image3 from './images/3.jpg';
 import Image3WebP from './images/3.webp';
 
-import Placeholder from './images/3.jpg';
-import PlaceholderWebp from './images/3.webp';
+import Placeholder from './images/placeholder.jpg';
+import PlaceholderWebp from './images/placeholder.webp';
 
 const options = {
   waitComplete: true, 
@@ -70,7 +70,7 @@ const App (props) => (
 
   // placeholder are optional. Image that is shown until the image is in the viewport
 
-  <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly />
+  <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly" />
 </Lazy>
 ```
 ### DIV tag - CSS background
@@ -84,7 +84,7 @@ A placeholder is an image that is shown until the image is in the viewport.
 data-webpsrc and the optional data-webpplaceholder are only needed if you enable webp detection in the options.
 ```jsx
 <Lazy {...options}>
-  <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly />
+  <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly" />
 </Lazy>
 ```
 ### Multiple images in one wrapper
@@ -93,7 +93,7 @@ You also need to wrap it in another container.
 ```jsx
 <Lazy {...options}>
   <div>
-    <img data-type="lazy" data-src={Image1} alt="butterfly />
+    <img data-type="lazy" data-src={Image1} alt="butterfly" />
     <div data-type="lazy" data-src={Image1} />
     <picture>
       <source media="(min-width:600px)" data-srcset={Image1} />
