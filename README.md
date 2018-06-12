@@ -5,7 +5,7 @@
 * **Webp detection**
 * **Placeholder** 
 * **Picture tag support**
-* **SRC && Background image support**
+* **HTML && CSS image support**
 * **First render when image is downloaded**
 * **Customize percentage of visibility**
 * **Custom Callback when image is rendered**
