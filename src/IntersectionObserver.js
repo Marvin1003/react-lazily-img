@@ -40,7 +40,7 @@ export default class LazyLoading extends Component {
   }
 
   componentDidMount() {
-    // IN CASE THERE THIS.PROPS.CHILDREN IS NULL RETURN
+    // IN CASE THIS.PROPS.CHILDREN IS NULL RETURN
     if(!this.element.current)
       return;
 
@@ -57,7 +57,7 @@ export default class LazyLoading extends Component {
     else 
       this.webp = this.props.webp;
 
-    // IF MULTIPLE IMAGES NESTED INSIDE ON WRAPPER
+    // IF MULTIPLE IMAGES NESTED INSIDE ONE WRAPPER
     this.elements = this.element.current.querySelectorAll('[data-type="lazy"]');
 
     // IF PICTURE TAG IS USED
