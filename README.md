@@ -25,7 +25,7 @@ MDN:
 # Documentation
 
 ## Code examples
-```
+```jsx
 import React from 'react';
 // import React Lazily IMG
 import Lazy from 'react-lazily-img';
@@ -63,7 +63,7 @@ const App (props) => (
 );
 ```
 ### IMG tag
-```
+```jsx
 <Lazy {...options}>
   // data-webpsrc and the optional data-webpplaceholder are only needed 
   // if you enable webp detection in the options
@@ -74,7 +74,7 @@ const App (props) => (
 </Lazy>
 ```
 ### DIV tag - CSS background
-```
+```jsx
 <Lazy {...options}>
   <div data-src={Image1} data-webpsrc={Image1WebP} />
 </Lazy>
@@ -82,7 +82,7 @@ const App (props) => (
 ### Placeholder
 A placeholder is an image that is shown until the image is in the viewport.
 data-webpsrc and the optional data-webpplaceholder are only needed if you enable webp detection in the options.
-```
+```jsx
 <Lazy {...options}>
   <img data-placeholder={Placeholder} data-webpplaceholder={PlaceholderWebp} data-src={Image1} data-webpsrc={Image1WebP} alt="butterfly />
 </Lazy>
@@ -90,7 +90,7 @@ data-webpsrc and the optional data-webpplaceholder are only needed if you enable
 ### Multiple images in one wrapper
 Every image needs the data-type="lazy" and if you have you use a picture tag the img inside needs the data-type="lazy".
 You also need to wrap it in another container.
-```
+```jsx
 <Lazy {...options}>
   <div>
     <img data-type="lazy" data-src={Image1} alt="butterfly />
@@ -116,7 +116,7 @@ You also need to wrap it in another container.
 |`threshold`|Indicate at what percentage of the target's visibility the observer's callback should be executed. i.e at an visibility above 50%: `0.5`|num (0 -> 1)|`0`|
 
 ### Example
-```
+```jsx
 const options = {
   waitComplete: true, 
   webp: true
