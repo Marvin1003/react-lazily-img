@@ -9,7 +9,10 @@ export default class LazyLoading extends Component {
   static defaultProps={
     webp: false,
     waitComplete: true,
-    rootMargin: '0px 0px 0px 0px',
+    hideTillRender: true,
+    clearAttributes: true,
+    root: null,
+    rootMargin: '0px',
     threshold: 0
   };
 
@@ -59,6 +62,8 @@ export default class LazyLoading extends Component {
     // IF PICTURE TAG IS USED
     this.pictureSources = this.element.current.querySelectorAll('[data-srcset]');
 
+    // SET ELEMENT TO THE THIS.PROPS.CHILDREN OR IN THE CASE OF MULTIPLE IMAGES IN ONE WRAPPER TO THE 
+    // ELEMENTS WITH THE DATA-TYPE="LAZY"
     this.element = this.elements && this.elements.length > 0 ? this.elements : [this.element.current];
 
     if(this.element[0].tagName !== 'PICTURE') 
@@ -70,11 +75,12 @@ export default class LazyLoading extends Component {
   checkAltAndPlaceholder(elements) {
     elements.forEach((el) => {
       this.checkAlt(el);
-      if(el.dataset.placeholder && el.tagName === 'SOURCE') 
-        this.dataToSrc(el, LazyLoading.defaultKeys.sourcetag, LazyLoading.defaultKeys.placeHolderAttr);
-      else 
-        el.dataset.placeholder 
-          && this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.placeHolderAttr);
+      if(el.dataset.placeholder) {
+        if(el.tagName === 'SOURCE')
+          this.dataToSrc(el, LazyLoading.defaultKeys.sourcetag, LazyLoading.defaultKeys.placeHolderAttr);
+        else
+          this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.placeHolderAttr);
+      }
     });
   }
 
@@ -90,7 +96,11 @@ export default class LazyLoading extends Component {
   }
 
   createObserver(targets) {
-    const options = { rootMargin: this.props.rootMargin, threshold: this.props.threshold } || { };
+    const options = { 
+      root: this.props.root, 
+      rootMargin: this.props.rootMargin, 
+      threshold: this.props.threshold
+    };
 
     this.observer = new IntersectionObserver(this.callback, options);
     targets.forEach((target) => this.observer.observe(target));
@@ -113,10 +123,9 @@ export default class LazyLoading extends Component {
   }
 
   async lazyLoading(el) {
-    // LOAD MASTER IMAGE
+    // RENDER WHEN FULLY DOWNLOADED - (WAITCOMPLETE)
     const image = new Image();
     image.src = this.getSource(el, LazyLoading.defaultKeys.defaultAttr);
-    console.log(image.src);
     image.onload = () => this.applySource(el);
   }
 
@@ -145,6 +154,18 @@ export default class LazyLoading extends Component {
       default:
         el.style.backgroundImage = `url(${src})`;
     }
+
+    this.props.clearAttributes && this.clearAttributes(el);
+
+    (this.props.hideTillRender && !this.alreadyVisible) 
+      && this.element.forEach((el) => el.style.visibility = 'visible', this.alreadyVisible = true);
+  }
+
+  clearAttributes(el) {
+    Object.keys(el.dataset).forEach((attr) => {
+      if(attr.includes('src') || attr.includes('placeholder'))
+        el.removeAttribute(`data-${attr}`);
+    })
   }
 
   getSource(el, key, pictureTag = false) {
@@ -171,7 +192,8 @@ export default class LazyLoading extends Component {
   render() {
     if(this.props.children)
       return (
-        React.cloneElement(React.Children.only(this.props.children), { ref: this.element })
+        React.cloneElement(React.Children.only(this.props.children), 
+        { ref: this.element, style: { visibility: this.props.hideTillRender ? 'hidden' : '' } })
       );
     else {
       LazyLoading.errorMessage(LazyLoading.errorHandling.message.noChild);
