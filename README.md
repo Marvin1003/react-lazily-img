@@ -44,9 +44,7 @@ import Placeholder from './images/3.jpg';
 import PlaceholderWebp from './images/3.webp';
 
 const options = {
-  // waits until image is fully downloaded before render if set to true. Not yet supported for the picture tag
   waitComplete: true, 
-  // ship a webp version of the picture in supported browser
   webp: true
 };
 
@@ -54,10 +52,10 @@ const App (props) => (
   <div className="App">
     <Lazy {...options}>
       <picture>
-        <source media="(min-width:600px)" data-srcset={Image1} />
-        <source media="(min-width:500px)" data-srcset={Image2} />
         <source type="image/webp" media="(min-width:600px)" data-srcset={Image1WebP} />
         <source type="image/webp" media="(min-width:500px)" data-srcset={Image2WebP} />
+        <source media="(min-width:600px)" data-srcset={Image1} />
+        <source media="(min-width:500px)" data-srcset={Image2} />
         <img data-src={Image3} data-webpsrc={Image3WebP} alt="butterfly" />
       </picture>
     </Lazy>
@@ -107,6 +105,33 @@ You also need to wrap it in another container.
 ```
 ## options
 Coming soon.
+| Option | Description | value | default |
+| --- | --- | --- | --- |
+| `waitComplete` | Wait until the image is fully downloaded before rendering. Doesn't yet support the picture tag. | bool | `true` |
+| `webp` | Ship a webp version if Browser supports it. No need to enable it when working with picture tag as it has its own detection (`type="image/webp"` - see code examples.). You need to pass the webp version of your picture in `data-webpsrc={Image}`. | bool |`false` |
+| `hideTillRender`| Hides the image until its rendered as you would otherwise see the alt tag. | bool | `true`
+| `clearAttribute` | Clear the data-attributes you used to pass the image after its rendered. | bool | `true` |
+| `root`| The element that is used as the viewport to check the visiblity of a target. | elem | browser viewport
+| `rootMargin`| Similair to the CSS 'margin' property. It manipulates the elements bounding box. Same syntax as in CSS with either an absolute length or a percentage. | px || % | `0px 0px 0px 0px` |
+| `threshold`| Indicate at what percentage of the target's visibility the observer's callback should be executed. i.e at an visibility above 50%: `0.5` | num (0 -> 1) | `0` |
+
+### Example
+```
+const options = {
+  waitComplete: true, 
+  webp: true
+  hideTillRender: true,
+  clearAttributes: true,
+  root: document.querySelector('#scrollArea'),
+  rootMargin: '50px 0px',
+  threshold: 0.75
+};
+
+<Lazy {...options}>
+  // image
+</Lazy>
+```
+
 
 # Polyfill
 For the full support [IntersectionObserver polyfill](https://github.com/w3c/IntersectionObserver/tree/master/polyfill) is used.
