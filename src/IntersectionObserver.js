@@ -11,6 +11,7 @@ export default class LazyLoading extends Component {
     waitComplete: true,
     hideTillRender: true,
     clearAttributes: true,
+    callback: null,
     root: null,
     rootMargin: '0px',
     threshold: 0
