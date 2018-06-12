@@ -110,6 +110,7 @@ You also need to wrap it in another container.
 |`webp`|Ship a webp version if Browser supports it. No need to enable it when working with picture tag as it has its own detection (`type="image/webp"` - see code examples.). You need to pass the webp version of your picture in `data-webpsrc={Image}`.|bool|`false`|
 |`hideTillRender`|Hides the image until its rendered as you would otherwise see the alt tag.|bool|`true`|
 |`clearAttribute`|Clear the data-attributes you used to pass the image after its rendered.|bool|`true`|
+|`callback`|Takes a custom callback thats executed after the image is rendered.|func|`null`|
 |`root`|The element that is used as the viewport to check the visiblity of a target.|elem|browser viewport|
 |`rootMargin`|Similair to the CSS 'margin' property. It manipulates the elements bounding box. Same syntax as in CSS with either an absolute length or a percentage.|px \|\| %|`0px 0px 0px 0px`|
 |`threshold`|Indicate at what percentage of the target's visibility the observer's callback should be executed. i.e at an visibility above 50%: `0.5`|num (0 -> 1)|`0`|
@@ -121,6 +122,7 @@ const options = {
   webp: true
   hideTillRender: true,
   clearAttributes: true,
+  callback: () => console.log("Rendered!"),
   root: document.querySelector('#scrollArea'),
   rootMargin: '50px 0px',
   threshold: 0.75
