@@ -1,10 +1,14 @@
 # React Lazily IMG
 **React Lazily IMG** is a React Wrapper Component to lazily load images. The goal is to use the convenient and known standard HTML tags and just have them lazily loaded.
 
+# Information
+As I started developing this little package a week ago there still might be some bugs. 
+PRs, feature requests and tips are always welcome. Enjoy.
+
 # Features
+* **Picture tag and IMG srcset support**
 * **Webp detection**
 * **Placeholder** 
-* **Picture tag support**
 * **HTML && CSS image support**
 * **First render when image is downloaded**
 * **Customize percentage of visibility**
@@ -25,6 +29,7 @@ MDN:
 # Documentation
 
 ## Code examples
+### Picture tag
 ```jsx
 import React from 'react';
 // import React Lazily IMG
@@ -61,6 +66,24 @@ const App (props) => (
     </Lazy>
   </div>
 );
+```
+### IMG srcset
+For now you dont have the ability to shit the srcset image in .webp - coming soon - but you can still pass the standard src in webp.
+```jsx
+<Lazy {...options}>
+  <img 
+    data-srcset={`
+      ${Image1} 320w,
+      ${Image3} 480w,
+      ${Image2} 800w`}
+    sizes="
+      (max-width: 320px) 280px,
+      (max-width: 480px) 440px,
+      800px"
+    alt="butterfly"
+    data-src={Image1}
+    data-webpsrc={Image1WebP}
+/> 
 ```
 ### IMG tag
 ```jsx
@@ -110,6 +133,7 @@ You also need to wrap it in another container.
 |`webp`|Ship a webp version if Browser supports it. No need to enable it when working with picture tag as it has its own detection (`type="image/webp"` - see code examples.). You need to pass the webp version of your picture in `data-webpsrc={Image}`.|bool|`false`|
 |`hideTillRender`|Hides the image until its rendered as you would otherwise see the alt tag.|bool|`true`|
 |`clearAttribute`|Clear the data-attributes you used to pass the image after its rendered.|bool|`true`|
+|`dataType`|The name of the `data-type` attribute you have to pass when working with multiple images in one wrapper|string|`lazy`|
 |`callback`|Takes a custom callback thats executed after the image is rendered.|func|`null`|
 |`root`|The element that is used as the viewport to check the visiblity of a target.|elem|browser viewport|
 |`rootMargin`|Similair to the CSS 'margin' property. It manipulates the elements bounding box. Same syntax as in CSS with either an absolute length or a percentage.|px \|\| %|`0px 0px 0px 0px`|
@@ -122,6 +146,7 @@ const options = {
   webp: true
   hideTillRender: true,
   clearAttributes: true,
+  dataType: 'lazy_images',
   callback: () => console.log("Rendered!"),
   root: document.querySelector('#scrollArea'),
   rootMargin: '50px 0px',
