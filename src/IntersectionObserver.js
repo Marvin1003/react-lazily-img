@@ -12,6 +12,7 @@ export default class LazyLoading extends Component {
     hideTillRender: true,
     clearAttributes: true,
     callback: null,
+    dataType:'lazy',
     root: null,
     rootMargin: '0px',
     threshold: 0
@@ -19,9 +20,9 @@ export default class LazyLoading extends Component {
 
   static defaultKeys = {
     default: 'src',
-    sourcetag: 'srcset',
+    responsiveImages: 'srcset',
     defaultAttr: ['src', 'webpsrc'],
-    placeHolderAttr: ['placeholder', 'webpplaceholder'],
+    placeholderAttr: ['placeholder', 'webpplaceholder'],
   };
 
   static errorHandling = {
@@ -58,31 +59,19 @@ export default class LazyLoading extends Component {
       this.webp = this.props.webp;
 
     // IF MULTIPLE IMAGES NESTED INSIDE ONE WRAPPER
-    this.elements = this.element.current.querySelectorAll('[data-type="lazy"]');
+    const elements = this.element.current.querySelectorAll(`[data-type=${this.props.dataType}]`);
 
-    // IF PICTURE TAG IS USED
-    this.pictureSources = this.element.current.querySelectorAll('[data-srcset]');
+    // FOR RESPONSIVE IMAGES (PICTURE tag / IMG srcset)
+    const srcset = this.element.current.querySelectorAll('[data-srcset]');
+
+    this.responsiveImages = 
+      srcset.length > 0 ? srcset : Boolean(this.element.current.dataset.srcset) ? [this.element.current] : null;
 
     // SET ELEMENT TO THE THIS.PROPS.CHILDREN OR IN THE CASE OF MULTIPLE IMAGES IN ONE WRAPPER TO THE 
     // ELEMENTS WITH THE DATA-TYPE="LAZY"
-    this.element = this.elements && this.elements.length > 0 ? this.elements : [this.element.current];
+    this.element = elements && elements.length > 0 ? elements : [this.element.current];
 
-    if(this.element[0].tagName !== 'PICTURE') 
-      this.checkAltAndPlaceholder(this.element);
-    else if(this.pictureSources) 
-      this.checkAltAndPlaceholder(this.pictureSources[0].parentNode.childNodes);
-  }
-
-  checkAltAndPlaceholder(elements) {
-    elements.forEach((el) => {
-      this.checkAlt(el);
-      if(el.dataset.placeholder) {
-        if(el.tagName === 'SOURCE')
-          this.dataToSrc(el, LazyLoading.defaultKeys.sourcetag, LazyLoading.defaultKeys.placeHolderAttr);
-        else
-          this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.placeHolderAttr);
-      }
-    });
+    this.checkAlt();
   }
 
   async checkWebp() {
@@ -90,10 +79,28 @@ export default class LazyLoading extends Component {
     return this.webp;
   }
 
+  checkPlaceholder(elements) {
+    elements.forEach((el) => {
+      if(el.tagName === 'PICTURE') 
+        el.childNodes.forEach((source) => {
+          this.dataToSrc(source, LazyLoading.defaultKeys.defaultKesys, LazyLoading.defaultKeys.placeholderAttr);
+        });
+      else
+        this.dataToSrc(el, LazyLoading.defaultKeys.default, LazyLoading.defaultKeys.placeholderAttr);
+    });
+  }
+
   checkAlt(el) {
     // WARN IF NO ALT TEXT IS SET
-    if(el.tagName === 'IMG' && !el.alt) 
-      LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
+    this.element.forEach((el) => {
+      if(el.tagName === 'PICTURE') {
+        if(!Boolean(el.querySelector('img').alt))
+          LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
+          return;
+      }
+      if(el.tagName === 'IMG' && !el.alt)
+        LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
+    })
   }
 
   createObserver(targets) {
@@ -114,11 +121,14 @@ export default class LazyLoading extends Component {
         // IF WAIT COMPLETE IS ON WAIT UNTIL IMAGE IS FULLY LOADED BEFORE RENDER
         // ELSE INSTANTLY RENDER THE IMAGE
         // WAITCOMPLETE NOT YET SUPPORTED FOR PICTURE - COMING SOON
-        this.props.waitComplete && this.pictureSources.length === 0
+        this.props.waitComplete && Boolean(this.responsiveImages)
           ? this.lazyLoading(entry.target)
           : this.applySource(entry.target);
         
         this.observer.unobserve(entry.target);
+      } else {
+        // ONLY SHOW PLACEHOLDER IF ELEMENT IS NOT IN THE VIEWPORT -- TO PREVENT IMAGE FLASHING
+        this.checkPlaceholder(this.element);
       }
     })
   }
@@ -131,9 +141,11 @@ export default class LazyLoading extends Component {
   }
 
   applySource = (el) => {
-    if(!el.dataset.src) {
-      this.pictureSources.forEach((source) => (
-        this.dataToSrc(source, LazyLoading.defaultKeys.sourcetag, [LazyLoading.defaultKeys.sourcetag], true)
+    if(el.hasAttribute('data-srcset')) 
+      this.dataToSrc(el, LazyLoading.defaultKeys.responsiveImages, [LazyLoading.defaultKeys.responsiveImages]);
+    else if(el.tagName === 'PICTURE') {
+      this.responsiveImages.forEach((source) => (
+        this.dataToSrc(source, LazyLoading.defaultKeys.responsiveImages, [LazyLoading.defaultKeys.responsiveImages])
       ));
       el = el.querySelector('img')
     }
@@ -143,39 +155,34 @@ export default class LazyLoading extends Component {
     this.props.callback && this.props.callback();
   }
 
-  dataToSrc(el, srcKey, dataKeys, pictureTag) {
-    const src = this.getSource(el, dataKeys, pictureTag);
+  dataToSrc(el, srcKey, dataKeys) {
+    const src = this.getSource(el, dataKeys);
 
-    switch(el.tagName) {
-      // FALL-THROUGH
-      case 'SOURCE':
-      case 'IMG':
-        el[srcKey] = src;
-        break;
-      default:
-        el.style.backgroundImage = `url(${src})`;
+    if(Boolean(src)) {
+      switch(el.tagName) {
+        // FALL-THROUGH
+        case 'SOURCE':
+        case 'IMG':
+          el[srcKey] = src;
+          break;
+        default:
+          el.style.backgroundImage = `url(${src})`;
+      }
+
+      this.props.clearAttributes && this.clearAttributes(el, dataKeys);
     }
 
-    this.props.clearAttributes && this.clearAttributes(el);
 
     (this.props.hideTillRender && !this.alreadyVisible) 
       && this.element.forEach((el) => el.style.visibility = 'visible', this.alreadyVisible = true);
   }
 
-  clearAttributes(el) {
-    Object.keys(el.dataset).forEach((attr) => {
-      if(attr.includes('src') || attr.includes('placeholder'))
-        el.removeAttribute(`data-${attr}`);
-    })
-  }
-
-  getSource(el, key, pictureTag = false) {
-    if((!this.props.webp || !this.webp || pictureTag)) {
+  getSource(el, key) {
+    if((!this.webp)) {
       if(!el.dataset[key[0]]) 
         LazyLoading.errorMessage(LazyLoading.errorHandling.message.forgotPassIMG);
       else 
         return el.dataset[key[0]];
-
       } else {
       if(!el.dataset[key[1]]) {
         LazyLoading.errorMessage(LazyLoading.errorHandling.message.noWebpIMG);
@@ -188,6 +195,11 @@ export default class LazyLoading extends Component {
       else 
         return el.dataset[key[1]];
     }
+  }
+
+  clearAttributes(el, key) {
+    key = Array.isArray(key) ? key : [key];
+    key.forEach((datakey) => el.dataset[datakey] && el.removeAttribute(`data-${datakey}`));
   }
 
   render() {
