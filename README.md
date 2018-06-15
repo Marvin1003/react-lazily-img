@@ -32,6 +32,7 @@ MDN:
 ### Picture tag
 ```jsx
 import React from 'react';
+
 // import React Lazily IMG
 import Lazy from 'react-lazily-img';
 
@@ -48,9 +49,11 @@ import Image3WebP from './images/3.webp';
 import Placeholder from './images/placeholder.jpg';
 import PlaceholderWebp from './images/placeholder.webp';
 
+// You dont need to set webp to true when working with a picture tag as its has a webp detection on its own. 
+
 const options = {
-  waitComplete: true, 
-  webp: true
+  waitComplete: false, 
+  webp: false
 };
 
 const App (props) => (
@@ -111,19 +114,16 @@ data-webpsrc and the optional data-webpplaceholder are only needed if you enable
 </Lazy>
 ```
 ### Multiple images in one wrapper
-Every image needs the data-type="lazy" and if you have you use a picture tag the img inside needs the data-type="lazy".
-You also need to wrap it in another container.
+You can also place multiple images in one wrapper
 ```jsx
 <Lazy {...options}>
-  <div>
-    <img data-type="lazy" data-src={Image1} alt="butterfly" />
-    <div data-type="lazy" data-src={Image1} />
-    <picture>
-      <source media="(min-width:600px)" data-srcset={Image1} />
-      <source media="(min-width:500px)" data-srcset={Image2} />
-      <img data-src={Image3} data-type="lazy" alt="butterfly" />
-    </picture>
-  </div>
+  <img data-src={Image1} alt="butterfly" />
+  <div data-src={Image1} />
+  <picture>
+    <source media="(min-width:600px)" data-srcset={Image1} />
+    <source media="(min-width:500px)" data-srcset={Image2} />
+    <img data-src={Image3} alt="butterfly" />
+  </picture>
 </Lazy>
 ```
 ## options
@@ -133,7 +133,6 @@ You also need to wrap it in another container.
 |`webp`|Ship a webp version if Browser supports it. No need to enable it when working with picture tag as it has its own detection (`type="image/webp"` - see code examples.). You need to pass the webp version of your picture in `data-webpsrc={Image}`.|bool|`false`|
 |`hideTillRender`|Hides the image until its rendered as you would otherwise see the alt tag.|bool|`true`|
 |`clearAttribute`|Clear the data-attributes you used to pass the image after its rendered.|bool|`true`|
-|`dataType`|The name of the `data-type` attribute you have to pass when working with multiple images in one wrapper|string|`lazy`|
 |`callback`|Takes a custom callback thats executed after the image is rendered.|func|`null`|
 |`root`|The element that is used as the viewport to check the visiblity of a target.|elem|browser viewport|
 |`rootMargin`|Similair to the CSS 'margin' property. It manipulates the elements bounding box. Same syntax as in CSS with either an absolute length or a percentage.|px \|\| %|`0px 0px 0px 0px`|
@@ -146,7 +145,6 @@ const options = {
   webp: true
   hideTillRender: true,
   clearAttributes: true,
-  dataType: 'lazy_images',
   callback: () => console.log("Rendered!"),
   root: document.querySelector('#scrollArea'),
   rootMargin: '50px 0px',
