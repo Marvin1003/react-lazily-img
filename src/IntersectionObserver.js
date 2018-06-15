@@ -27,6 +27,7 @@ export default class LazyLoading extends Component {
     defaultAttr: ['src', 'webpsrc'],
     placeholderAttr: ['placeholder', 'webpplaceholder'],
   };
+  
   componentDidMount() {
     // IN CASE THIS.PROPS.CHILDREN IS NULL RETURN
     if(!this.props.children || this.count > 1)
@@ -80,7 +81,6 @@ export default class LazyLoading extends Component {
     targets.forEach((target) => this.observer.observe(target));
   }
 
-  
   callback = (entries) => {
     entries.forEach((entry) => {
       if(entry.isIntersecting) {
