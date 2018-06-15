@@ -60,7 +60,7 @@ export default class LazyLoading extends Component {
     });
   }
 
-  checkAlt(el) {
+  checkAlt() {
     // WARN IF NO ALT TEXT IS SET
     this.element.forEach((el) => {
       if((el.tagName === 'PICTURE' && !Boolean(el.querySelector('img').alt)) ||
@@ -92,14 +92,13 @@ export default class LazyLoading extends Component {
           : this.applySource(entry.target);
         
         this.observer.unobserve(entry.target);
-      } else {
+      } else 
         // ONLY SHOW PLACEHOLDER IF ELEMENT IS NOT IN THE VIEWPORT -- TO PREVENT IMAGE FLASHING
         this.checkPlaceholder(this.element);
-      }
     })
   }
 
-  async lazyLoading(el) {
+  lazyLoading(el) {
     // RENDER WHEN FULLY DOWNLOADED - (WAITCOMPLETE)
     const image = new Image();
     image.src = this.getSource(el, LazyLoading.defaultKeys.defaultAttr);
@@ -137,7 +136,6 @@ export default class LazyLoading extends Component {
 
       this.props.clearAttributes && this.clearAttributes(el, dataKeys);
     }
-
 
     (this.props.hideTillRender && !this.alreadyVisible) 
       && this.element.forEach((el) => el.style.visibility = 'visible', this.alreadyVisible = true);
