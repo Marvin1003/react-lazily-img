@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 // POLYFILL
 import 'intersection-observer';
+// WEBP SUPPORT DETECTION
 import webpSupport from './webpSupport';
+// ERROR MESSAGES
+import error from './error';
 
 export default class LazyLoading extends Component {
   element = React.createRef();
+  count = React.Children.count(this.props.children);
 
   static defaultProps={
     webp: false,
@@ -12,7 +16,6 @@ export default class LazyLoading extends Component {
     hideTillRender: true,
     clearAttributes: true,
     callback: null,
-    dataType:'lazy',
     root: null,
     rootMargin: '0px',
     threshold: 0
@@ -24,42 +27,16 @@ export default class LazyLoading extends Component {
     defaultAttr: ['src', 'webpsrc'],
     placeholderAttr: ['placeholder', 'webpplaceholder'],
   };
-
-  static errorHandling = {
-    documentation: 'Documentation: https://github.com/Marvin1003/react-lazily-img',
-    message: {
-      noChild: 'You forgot to pass a child. React Lazily IMG only works as wrapper.',
-      altWarning: "Consider using an ALT-Text. It's important for SEO and accessibility",
-      fallback: "Fallback - the non webp version is used even though this browser supports webp.",
-      noWebpIMG: "You enabled WebP support. The Browser you are currently using also does but you didn't provide a webp image. Pass the webp version in the attribute: 'data-webpsrc'.",
-      forgotPassIMG: "You probably forgot to pass the image."
-    }
-  };
-
-  static errorMessage(message) {
-    console.warn(`${message} ${LazyLoading.errorHandling.documentation}`);
-  }
-
   componentDidMount() {
     // IN CASE THIS.PROPS.CHILDREN IS NULL RETURN
-    if(!this.element.current)
+    if(!this.props.children || this.count > 1)
       return;
 
     this.getElement().then(() => this.createObserver(this.element));
   }
   
-  componentDidCatch(error, info) {
-    console.log(error, info);
-  }
-
   async getElement() {
-    if(this.props.webp)
-      await this.checkWebp();
-    else 
-      this.webp = this.props.webp;
-
-    // IF MULTIPLE IMAGES NESTED INSIDE ONE WRAPPER
-    const elements = this.element.current.querySelectorAll(`[data-type=${this.props.dataType}]`);
+    this.webp = this.props.webp ? await webpSupport() : this.props.webp;
 
     // FOR RESPONSIVE IMAGES (PICTURE tag / IMG srcset)
     const srcset = this.element.current.querySelectorAll('[data-srcset]');
@@ -67,16 +44,9 @@ export default class LazyLoading extends Component {
     this.responsiveImages = 
       srcset.length > 0 ? srcset : Boolean(this.element.current.dataset.srcset) ? [this.element.current] : null;
 
-    // SET ELEMENT TO THE THIS.PROPS.CHILDREN OR IN THE CASE OF MULTIPLE IMAGES IN ONE WRAPPER TO THE 
-    // ELEMENTS WITH THE DATA-TYPE="LAZY"
-    this.element = elements && elements.length > 0 ? elements : [this.element.current];
+    this.element = [this.element.current];
 
     this.checkAlt();
-  }
-
-  async checkWebp() {
-    this.webp = await webpSupport();
-    return this.webp;
   }
 
   checkPlaceholder(elements) {
@@ -93,13 +63,9 @@ export default class LazyLoading extends Component {
   checkAlt(el) {
     // WARN IF NO ALT TEXT IS SET
     this.element.forEach((el) => {
-      if(el.tagName === 'PICTURE') {
-        if(!Boolean(el.querySelector('img').alt))
-          LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
-          return;
-      }
-      if(el.tagName === 'IMG' && !el.alt)
-        LazyLoading.errorMessage(LazyLoading.errorHandling.message.altWarning);
+      if((el.tagName === 'PICTURE' && !Boolean(el.querySelector('img').alt)) ||
+         (el.tagName === 'IMG' && !el.alt)) 
+          error('altWarning');
     })
   }
 
@@ -180,15 +146,15 @@ export default class LazyLoading extends Component {
   getSource(el, key) {
     if((!this.webp)) {
       if(!el.dataset[key[0]]) 
-        LazyLoading.errorMessage(LazyLoading.errorHandling.message.forgotPassIMG);
+        error('forgotPassIMG');
       else 
         return el.dataset[key[0]];
       } else {
       if(!el.dataset[key[1]]) {
-        LazyLoading.errorMessage(LazyLoading.errorHandling.message.noWebpIMG);
+        error('noWebpIMG');
         // FALLBACK IF PROVIDED
         if(el.dataset[key[0]]) {
-          LazyLoading.errorMessage(LazyLoading.errorHandling.message.fallback);
+          error('fallback');
           return el.dataset[key[0]];
         }
       }
@@ -203,13 +169,21 @@ export default class LazyLoading extends Component {
   }
 
   render() {
-    if(this.props.children)
+    if(this.count === 1)
       return (
         React.cloneElement(React.Children.only(this.props.children), 
         { ref: this.element, style: { visibility: this.props.hideTillRender ? 'hidden' : '' } })
       );
+    else if(this.count > 1) 
+      return (
+        React.Children.map(this.props.children, (child) => (
+          <LazyLoading {...this.props}>
+            {child}
+          </LazyLoading>
+        ))
+      )
     else {
-      LazyLoading.errorMessage(LazyLoading.errorHandling.message.noChild);
+      error('noChild');
       return null;
     }
   }
