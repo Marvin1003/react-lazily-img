@@ -71,7 +71,7 @@ const App (props) => (
 );
 ```
 ### IMG srcset
-For now you dont have the ability to shit the srcset image in .webp - coming soon - but you can still pass the standard src in webp.
+For now you dont have the ability to set the srcset image in .webp - coming soon - but you can still pass the standard src in webp.
 ```jsx
 <Lazy {...options}>
   <img 
