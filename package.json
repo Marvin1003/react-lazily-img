@@ -7,23 +7,6 @@
     "type": "git",
     "url": "https://github.com/Marvin1003/react-images-lazy.git"
   },
-  [
-    [],
-    [
-      [
-        ['a', 'ressource1'],
-        ['a1', 'ressource2']
-      ],
-      [
-        ['b', 'ressource1'],
-        ['b1', 'ressource2']
-      ],
-      [
-        ['b', 'ressource1'],
-        ['b1', 'ressource2']
-      ]
-    ], []
-  ];
   "keywords": [
     "react",
     "component",
