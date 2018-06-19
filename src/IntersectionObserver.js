@@ -87,7 +87,7 @@ export default class LazyLoading extends Component {
         // IF WAIT COMPLETE IS ON WAIT UNTIL IMAGE IS FULLY LOADED BEFORE RENDER
         // ELSE INSTANTLY RENDER THE IMAGE
         // WAITCOMPLETE NOT YET SUPPORTED FOR PICTURE - COMING SOON
-        this.props.waitComplete && Boolean(this.responsiveImages)
+        this.props.waitComplete && !Boolean(this.responsiveImages)
           ? this.lazyLoading(entry.target)
           : this.applySource(entry.target);
         
@@ -135,10 +135,10 @@ export default class LazyLoading extends Component {
       }
 
       this.props.clearAttributes && this.clearAttributes(el, dataKeys);
-    }
 
-    (this.props.hideTillRender && !this.alreadyVisible) 
+      (this.props.hideTillRender && !this.alreadyVisible) 
       && this.element.forEach((el) => el.style.visibility = 'visible', this.alreadyVisible = true);
+    }
   }
 
   getSource(el, key) {
