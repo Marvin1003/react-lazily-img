@@ -86,7 +86,8 @@ For now you dont have the ability to set the srcset image in .webp - coming soon
     alt="butterfly"
     data-src={Image1}
     data-webpsrc={Image1WebP}
-/> 
+  /> 
+</Lazy>
 ```
 ### IMG tag
 ```jsx
