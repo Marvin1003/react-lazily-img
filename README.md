@@ -71,7 +71,6 @@ const App (props) => (
 );
 ```
 ### IMG srcset
-For now you dont have the ability to set the srcset image in .webp - coming soon - but you can still pass the standard src in webp.
 ```jsx
 <Lazy {...options}>
   <img 
@@ -79,6 +78,10 @@ For now you dont have the ability to set the srcset image in .webp - coming soon
       ${Image1} 320w,
       ${Image3} 480w,
       ${Image2} 800w`}
+    data-webpsrcset={`
+      ${Image1WebP} 320w,
+      ${Image3WebP} 480w,
+      ${Image2WebP} 800w`}
     sizes="
       (max-width: 320px) 280px,
       (max-width: 480px) 440px,
