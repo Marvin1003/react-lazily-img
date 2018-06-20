@@ -106,12 +106,8 @@ export default class LazyLoading extends Component {
   }
 
   applySource = (el) => {
-    if(el.hasAttribute('data-srcset')) {
-      if(el.tagName === 'IMG' && this.webp) 
+    if(el.hasAttribute('data-srcset')) 
         this.dataToSrc(el, LazyLoading.defaultKeys.responsiveImages[0], LazyLoading.defaultKeys.responsiveImages);
-      else
-        this.dataToSrc(el, LazyLoading.defaultKeys.responsiveImages[0], LazyLoading.defaultKeys.responsiveImages);
-    }
     else if(el.tagName === 'PICTURE') {
       this.responsiveImages.forEach((source) => (
         this.dataToSrc(source, LazyLoading.defaultKeys.responsiveImages[0], LazyLoading.defaultKeys.responsiveImages)
